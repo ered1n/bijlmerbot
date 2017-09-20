@@ -15,12 +15,13 @@ roosterEmbed.set_footer(text=date)
 helpList = ["**Purge:** " + prefix + "purge <user*> <amount> - Deletes messages \n",
             "**Ping:** " + prefix + "ping - Checks latency of the bot\n",
             "**Uptime:** " + prefix + "uptime - Shows the uptime of the bot\n"]
-helpEmbed = discord.Embed(title="Commands", description=helpList[0] + helpList[1] + helpList[2]  + "\n * is not required", colour=0x00ff00)
+helpEmbed = discord.Embed(title="Commands", description=helpList[0] + helpList[1] + helpList[2]  + "\n* is not required", colour=0x00ff00)
 helpEmbed.set_footer(text=date)
 
 @client.event
 async def on_ready():
     print("bot online")
+    await client.change_presence(game=discord.Game(name="$help", url="https://www.twitch.tv/bijlmerbot", type=1))
     while True:
         if(schedule_notification_discord.runScript()):
             await client.send_message(discord.Object(id="359766050461450240"), "@everyone ", embed=roosterEmbed)
