@@ -72,7 +72,6 @@ async def on_message(message):
         #perm
         if(cmd == "perm"):
             if(message.author == message.server.owner or checkPermission(cmd, permissions, message)):
-                print(len(args))
                 if(len(args) == 3):
                     if(args[0] == "add" or args[0] == "remove"):
                         if(args[1] in permCommands):
