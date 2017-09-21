@@ -9,14 +9,11 @@ from schedule_notification import schedule_notification_discord
 client = discord.Client()
 startTime = datetime.datetime.utcnow()
 prefix = config.prefix
-date = time.strftime("%d/%m/%Y %H:%M")
 roosterEmbed = discord.Embed(title="Roosterwijziging!", description="Het rooster is gewijzigd, klik [hier](" + schedule_notification_discord.URL + ") voor de wijzigingen", colour=0xff0000)
-roosterEmbed.set_footer(text=date)
 helpList = ["**Purge:** " + prefix + "purge <user*> <amount> - Deletes messages \n",
             "**Ping:** " + prefix + "ping - Checks latency of the bot\n",
             "**Uptime:** " + prefix + "uptime - Shows the uptime of the bot\n"]
 helpEmbed = discord.Embed(title="Commands", description=helpList[0] + helpList[1] + helpList[2]  + "\n* is not required", colour=0x00ff00)
-helpEmbed.set_footer(text=date)
 
 @client.event
 async def on_ready():
@@ -24,6 +21,8 @@ async def on_ready():
     await client.change_presence(game=discord.Game(name="$help", url="https://www.twitch.tv/bijlmerbot", type=1))
     while True:
         if(schedule_notification_discord.runScript()):
+            date = time.strftime("%d/%m/%Y %H:%M")
+            roosterEmbed.set_footer(text=date)
             await client.send_message(discord.Object(id="359766050461450240"), "@everyone ", embed=roosterEmbed)
         await asyncio.sleep(300)
 
@@ -35,6 +34,8 @@ async def on_message(message):
 
         #help
         if(cmd == "help"):
+            date = time.strftime("%d/%m/%Y %H:%M")
+            helpEmbed.set_footer(text=date)
             await client.send_message(message.channel, embed=helpEmbed)
 
         #ping
@@ -60,6 +61,7 @@ async def on_message(message):
                     try:
                         await client.purge_from(message.channel, limit=int(args[0]) + 1)
                         deleteEmbed = discord.Embed(title="Messages deleted", description="Deleted " + args[0] + " message(s)", colour=0x00ff00)
+                        date = time.strftime("%d/%m/%Y %H:%M")
                         deleteEmbed.set_footer(text=date)
                         await client.send_message(message.channel, embed=deleteEmbed)
                     except discord.errors.HTTPException:
@@ -78,6 +80,7 @@ async def on_message(message):
                         if(counter >= int(args[1])):
                             break
                     deleteEmbed = discord.Embed(title="Messages deleted", description="Deleted " + str(counter) + " message(s)", colour=0x00ff00)
+                    date = time.strftime("%d/%m/%Y %H:%M")
                     deleteEmbed.set_footer(text=date)
                     await client.send_message(message.channel, embed=deleteEmbed)
             else:
