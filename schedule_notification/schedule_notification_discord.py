@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-# import urllib.request
 import requests
 import filecmp
 from datetime import date
