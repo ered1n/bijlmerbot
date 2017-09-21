@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
-import urllib.request
+# import urllib.request
+import requests
 import filecmp
 from datetime import date
 
@@ -10,17 +11,17 @@ WEEK = str(date.today().isocalendar()[1])
 URL = "https://rooster.talnet.nl/zuidoost/" + WEEK + "/c/c00045.htm"
 STATUS = ["old", "new"]
 SCHEDULE_OLD_EXISTS = Path(DIR + "schedule_old.txt").is_file()
-
+removeDates = "\n8.00"
 
 def getSchedule(url):
     try:
-        return urllib.request.urlopen(url).read()
+        return requests.get(url).text.split(removeDates)[1]
     except Exception as ex:
         return ex
 
 def writeSchedule(status):
     filename = DIR  + "schedule_" + status + ".txt"
-    with open(filename, "wb+") as txt_file:
+    with open(filename, "w") as txt_file:
         txt_file.write(getSchedule(URL))
 
 def compare():
