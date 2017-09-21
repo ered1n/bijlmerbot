@@ -13,7 +13,7 @@ prefix = config.prefix
 permCommands = ["perm", "purge"]
 roosterEmbed = discord.Embed(title="Roosterwijziging!", description="Het rooster is gewijzigd, klik [hier](" + schedule_notification_discord.URL + ") voor de wijzigingen", colour=0xff0000)
 helpList = ["**Purge:** " + prefix + "purge <user^> <amount> - Deletes messages\n\n",
-            "**Ping:** " + prefix + "ping - Checks latency of the bot\n\n",
+		"**Ping:** " + prefix + "ping - Checks latency of the bot\n\n",
             "**Uptime:** " + prefix + "uptime - Shows the uptime of the bot\n\n",
             "**Perm:** " + prefix + "perm <add/remove> <command> <role/user> - Add/remove permissions to a command^^\n\n"]
 helpEmbed = discord.Embed(title="Commands", description=helpList[0] + helpList[1] + helpList[2]  + helpList[3]  + "^ is not required\n^^ can only be used by the server owner or those with permission", colour=0x00ff00)
@@ -24,14 +24,23 @@ def checkPermission(command, permissions, message):
         for role in message.author.roles:
             roles.append(role.id)
         roleOrUser = rule["role/user"].replace("<", "").replace("@", "").replace(">", "").replace("!", "").replace("&", "")
-        if(rule["command"] == command and rule["server"] == message.server.id and roleOrUser == message.author.id or roleOrUser in roles):
-            return True
+        if(rule["command"] == command and rule["server"] == message.server.id):
+            if(roleOrUser == message.author.id):
+                return True
+            elif(roleOrUser in roles):
+                return True
+    return False
+    
+def findPermission(command, permissions, message, roleOrUser):
+    for rule in permissions:
+        if(rule["command"] == command and rule["server"] == message.server.id and rule["role/user"] == roleOrUser):
+            return rule
     return False
 
 @client.event
 async def on_ready():
     print("bot online")
-    await client.change_presence(game=discord.Game(name="$help", url="https://www.twitch.tv/bijlmerbot", type=1))
+    await client.change_presence(game=discord.Game(name=prefix + "help", url="https://www.twitch.tv/bijlmerbot", type=1))
     while True:
         if(schedule_notification_discord.runScript()):
             date = time.strftime("%d/%m/%Y %H:%M")
@@ -76,15 +85,28 @@ async def on_message(message):
                     if(args[0] == "add" or args[0] == "remove"):
                         if(args[1] in permCommands):
                             if(args[0] == "add"):
-                                rule = {"command": args[1], "server": message.server.id, "role/user": args[2]}
-                                with open("permissions.json", "r+") as data:
-                                    perms = json.load(data)
-                                    perms.append(rule)
-                                    data.seek(0)
-                                    json.dump(perms, data)
-                                await client.send_message(message.channel, "Permission added :ok_hand: :100:")
+                                if(not findPermission(args[1], permissions, message, args[2])):
+                                    rule = {"command": args[1], "server": message.server.id, "role/user": args[2]}
+                                    with open("permissions.json", "r+") as data:
+                                        perms = json.load(data)
+                                        perms.append(rule)
+                                        data.seek(0)
+                                        json.dump(perms, data)
+                                    await client.send_message(message.channel, "Permission added :ok_hand: :100:")
+                                else:
+                                    await client.send_message(message.channel, "Error, this rule already exists :smirk:")
                             elif(args[0] == "remove"):
-                                return
+                                rule = findPermission(args[1], permissions, message, args[2])
+                                if(rule):
+                                    with open("permissions.json", "r+") as data:
+                                        perms = json.load(data)
+                                        perms.pop(perms.index(rule))
+                                        data.seek(0)
+                                        json.dump(perms, data)
+                                        data.truncate()
+                                    await client.send_message(message.channel, "Permission removed :worried:")
+                                else:
+                                    await client.send_message(message.channel, "Error, rule doesn't exist :rage:")
                         else:
                             await client.send_message(message.channel, "Error, command doesn't require permission or doesn't exist")
                     else:
@@ -92,7 +114,7 @@ async def on_message(message):
                 else:
                     await client.send_message(message.channel, "Error, the correct syntax is: ```$perm <add/remove> <command> <role/user>```")
             else:
-                await client.send_message(message.channel, "You don't have permission to use this command")
+                await client.send_message(message.channel, "Error, you don't have permission to use the " + cmd + " command")
 
         #purge
         if(cmd == "purge"):
