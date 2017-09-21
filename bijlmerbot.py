@@ -13,7 +13,7 @@ prefix = config.prefix
 permCommands = ["perm", "purge"]
 roosterEmbed = discord.Embed(title="Roosterwijziging!", description="Het rooster is gewijzigd, klik [hier](" + schedule_notification_discord.URL + ") voor de wijzigingen", colour=0xff0000)
 helpList = ["**Purge:** " + prefix + "purge <user^> <amount> - Deletes messages\n\n",
-		"**Ping:** " + prefix + "ping - Checks latency of the bot\n\n",
+            "**Ping:** " + prefix + "ping - Checks latency of the bot\n\n",
             "**Uptime:** " + prefix + "uptime - Shows the uptime of the bot\n\n",
             "**Perm:** " + prefix + "perm <add/remove> <command> <role/user> - Add/remove permissions to a command^^\n\n"]
 helpEmbed = discord.Embed(title="Commands", description=helpList[0] + helpList[1] + helpList[2]  + helpList[3]  + "^ is not required\n^^ can only be used by the server owner or those with permission", colour=0x00ff00)
