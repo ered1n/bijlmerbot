@@ -15,8 +15,8 @@ removeDates = "\n8.00"
 def getSchedule(url):
     try:
         return requests.get(url).text.split(removeDates)[1]
-    except Exception as ex:
-        return ex
+    except IndexError:
+        return requests.get(url).text
 
 def writeSchedule(status):
     filename = DIR  + "schedule_" + status + ".txt"
