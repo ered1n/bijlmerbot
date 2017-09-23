@@ -7,7 +7,7 @@ from datetime import date
 DIR = os.path.dirname(os.path.realpath(__file__)) + "/"
 
 WEEK = str(date.today().isocalendar()[1])
-URL = "https://rooster.talnet.nl/zuidoost/" + "39" + "/c/c00045.htm"
+URL = "https://rooster.talnet.nl/zuidoost/" + WEEK + "/c/c00045.htm"
 STATUS = ["old", "new"]
 SCHEDULE_OLD_EXISTS = Path(DIR + "schedule_old.txt").is_file()
 removeDates = "\n8.00"
