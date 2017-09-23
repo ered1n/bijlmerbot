@@ -30,7 +30,7 @@ def checkPermission(command, permissions, message):
             elif(roleOrUser in roles):
                 return True
     return False
-    
+
 def findPermission(command, permissions, message, roleOrUser):
     for rule in permissions:
         if(rule["command"] == command and rule["server"] == message.server.id and rule["role/user"] == roleOrUser):
