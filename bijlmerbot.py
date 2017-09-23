@@ -11,6 +11,7 @@ client = discord.Client()
 startTime = datetime.datetime.utcnow()
 prefix = config.prefix
 permCommands = ["perm", "purge"]
+purgeMax = 1000
 roosterEmbed = discord.Embed(title="Roosterwijziging!", description="Het rooster is gewijzigd, klik [hier](" + schedule_notification_discord.URL + ") voor de wijzigingen", colour=0xff0000)
 helpList = ["**Purge:** " + prefix + "purge <user^> <amount> - Deletes messages\n\n",
             "**Ping:** " + prefix + "ping - Checks latency of the bot\n\n",
@@ -36,6 +37,34 @@ def findPermission(command, permissions, message, roleOrUser):
         if(rule["command"] == command and rule["server"] == message.server.id and rule["role/user"] == roleOrUser):
             return rule
     return False
+
+async def deleteMessages(message, length, args, purgeValue):
+    counter = 0
+    if(length == 2):
+        user_id = args[0].replace("<", "").replace("@", "").replace(">", "").replace("!", "")
+    await client.purge_from(message.channel, limit=1)
+    async for msg in client.logs_from(message.channel, limit=purgeMax):
+        if(length == 1):
+            counter += 1
+            try:
+                await client.delete_message(msg)
+            except discord.errors.HTTPException:
+                await client.send_message(message.channel, "Error deleting messages")
+        if(counter >= purgeValue):
+            break
+        elif(length == 2):
+            if(msg.author.id == user_id):
+                counter += 1
+                try:
+                    await client.delete_message(msg)
+                except discord.errors.HTTPException:
+                    await client.send_message(message.channel, "Error deleting messages")
+            if(counter >= purgeValue):
+                break
+    deleteEmbed = discord.Embed(title="Messages deleted", description="Deleted " + str(counter) + " message(s)", colour=0x00ff00)
+    date = time.strftime("%d/%m/%Y %H:%M")
+    deleteEmbed.set_footer(text=date)
+    await client.send_message(message.channel, embed=deleteEmbed)
 
 @client.event
 async def on_ready():
@@ -122,31 +151,13 @@ async def on_message(message):
                 length = len(args)
                 if(length <= 2 and length >= 1):
                     if(length == 1):
-                        try:
-                            await client.purge_from(message.channel, limit=int(args[0]) + 1)
-                            deleteEmbed = discord.Embed(title="Messages deleted", description="Deleted " + args[0] + " message(s)", colour=0x00ff00)
-                            date = time.strftime("%d/%m/%Y %H:%M")
-                            deleteEmbed.set_footer(text=date)
-                            await client.send_message(message.channel, embed=deleteEmbed)
-                        except discord.errors.HTTPException:
-                            await client.send_message(message.channel, "Error deleting messages")
+                        purgeValue = int(args[0])
                     elif(length == 2):
-                        counter = 0
-                        user_id = args[0].replace("<", "").replace("@", "").replace(">", "").replace("!", "")
-                        await client.purge_from(message.channel, limit=1)
-                        async for msg in client.logs_from(message.channel):
-                            if(msg.author.id == user_id):
-                                counter += 1
-                                try:
-                                    await client.delete_message(msg)
-                                except discord.errors.HTTPException:
-                                    await client.send_message(message.channel, "Error deleting messages")
-                            if(counter >= int(args[1])):
-                                break
-                        deleteEmbed = discord.Embed(title="Messages deleted", description="Deleted " + str(counter) + " message(s)", colour=0x00ff00)
-                        date = time.strftime("%d/%m/%Y %H:%M")
-                        deleteEmbed.set_footer(text=date)
-                        await client.send_message(message.channel, embed=deleteEmbed)
+                        purgeValue = int(args[1])
+                    if(purgeValue <= purgeMax):
+                        await deleteMessages(message, length, args, purgeValue)
+                    else:
+                        await client.send_message(message.channel, "Error, the max amount of messages you can delete is " + str(purgeMax))
                 else:
                     await client.send_message(message.channel, "Error, the correct syntax is: ```$purge <user> <amount>```")
             else:
