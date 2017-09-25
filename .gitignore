@@ -4,3 +4,4 @@ __pycache__/
 schedule_new.txt
 schedule_old.txt
 .idea/
+permissions.json
