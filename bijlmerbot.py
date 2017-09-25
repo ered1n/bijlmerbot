@@ -66,16 +66,22 @@ async def deleteMessages(message, length, args, purgeValue):
     deleteEmbed.set_footer(text=date)
     await client.send_message(message.channel, embed=deleteEmbed)
 
-@client.event
-async def on_ready():
-    print("bot online")
-    await client.change_presence(game=discord.Game(name=prefix + "help", url="https://www.twitch.tv/bijlmerbot", type=1))
-    while True:
+async def checkSchedule():
+    await client.wait_until_ready()
+    while not client.is_closed:
         if(schedule_notification_discord.runScript()):
             date = time.strftime("%d/%m/%Y %H:%M")
             roosterEmbed.set_footer(text=date)
             await client.send_message(discord.Object(id="359766050461450240"), "@everyone ", embed=roosterEmbed)
-        await asyncio.sleep(300)
+        await asyncio.sleep(60)
+    
+@client.event
+async def on_ready():
+    print("Bot online")
+    print(client.user.name)
+    print(client.user.id)
+    print("-------------------")
+    await client.change_presence(game=discord.Game(name=prefix + "help", url="https://www.twitch.tv/bijlmerbot", type=1))
 
 @client.event
 async def on_message(message):
@@ -163,4 +169,5 @@ async def on_message(message):
             else:
                 await client.send_message(message.channel, "Error, you don't have permission to use the " + cmd + " command")
 
+client.loop.create_task(checkSchedule())
 client.run(config.key)
