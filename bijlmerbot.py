@@ -12,7 +12,7 @@ startTime = datetime.datetime.utcnow()
 prefix = config.prefix
 permCommands = ["perm", "purge"]
 purgeMax = 1000
-roosterEmbed = discord.Embed(title="Roosterwijziging!", description="Het rooster is gewijzigd, klik [hier](" + schedule_notification_discord.URL + ") voor de wijzigingen", colour=0xff0000)
+roosterEmbed = discord.Embed(title="Roosterwijziging!", description="Het rooster is gewijzigd, klik [hier](" + schedule_notification_discord.url + ") voor de wijzigingen", colour=0xff0000)
 helpList = ["**Purge:** " + prefix + "purge <user^> <amount> - Deletes messages\n\n",
             "**Ping:** " + prefix + "ping - Checks latency of the bot\n\n",
             "**Uptime:** " + prefix + "uptime - Shows the uptime of the bot\n\n",
@@ -69,7 +69,7 @@ async def deleteMessages(message, length, args, purgeValue):
 async def checkSchedule():
     await client.wait_until_ready()
     while not client.is_closed:
-        if(schedule_notification_discord.runScript()):
+        if(await client.loop.create_task(schedule_notification_discord.runScript(client))):
             date = time.strftime("%d/%m/%Y %H:%M")
             roosterEmbed.set_footer(text=date)
             await client.send_message(discord.Object(id="359766050461450240"), "@everyone ", embed=roosterEmbed)
@@ -82,6 +82,7 @@ async def on_ready():
     print(client.user.id)
     print("-------------------")
     await client.change_presence(game=discord.Game(name=prefix + "help", url="https://www.twitch.tv/bijlmerbot", type=1))
+    
 
 @client.event
 async def on_message(message):

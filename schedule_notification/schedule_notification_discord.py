@@ -1,46 +1,52 @@
 import os
 from pathlib import Path
-import requests
-import filecmp
 from datetime import date
+import aiohttp
+import asyncio
+import hashlib
 
-DIR = os.path.dirname(os.path.realpath(__file__)) + "/"
+dir = os.path.dirname(os.path.realpath(__file__)) + "/"
 
-WEEK = str(date.today().isocalendar()[1])
-URL = "https://rooster.talnet.nl/zuidoost/" + WEEK + "/c/c00045.htm"
-STATUS = ["old", "new"]
-SCHEDULE_OLD_EXISTS = Path(DIR + "schedule_old.txt").is_file()
+week = str(date.today().isocalendar()[1])
+url = "https://rooster.talnet.nl/zuidoost/" + week + "/c/c00044.htm"
+schedule_old_exists = Path(dir + "schedule_old.txt").is_file()
+filename = dir  + "schedule_old.txt"
 removeDates = "\n8.00"
-isNotSchedule = False
 
-def getSchedule(url):
+def getSchedule():
     try:
-        return requests.get(url).text.split(removeDates)[1]
+        request = yield from aiohttp.request("get", url)
+        src = yield from request.text()
+        return src.split(removeDates)[1]
     except IndexError:
-        global isNotSchedule
-        isNotSchedule = True
-        return requests.get(url).text
+        return False
+        
+def computeMD5hash(string):
+    m = hashlib.md5()
+    m.update(string.encode('utf-8'))
+    return m.hexdigest()
 
-def writeSchedule(status):
-    filename = DIR  + "schedule_" + status + ".txt"
-    with open(filename, "w") as txt_file:
-        txt_file.write(getSchedule(URL))
+async def writeSchedule(client):
+    with open(filename, "w") as data:
+        data.write(computeMD5hash(await client.loop.create_task(getSchedule())))
+    
+async def compare(client):
+    with open(filename, "r") as data:
+        md5_old = data.read()
+    md5_new = computeMD5hash(await client.loop.create_task(getSchedule()))
+    if(md5_old == md5_new):
+        return True
+    else:
+        return False
 
-def compare():
-    return filecmp.cmp(DIR + "schedule_old.txt", DIR + "schedule_new.txt")
-
-def runScript():
-    if(not SCHEDULE_OLD_EXISTS):
-        writeSchedule(STATUS[0])
-
-    writeSchedule(STATUS[1])
-
-    if(not isNotSchedule):
-        if(not compare()):
-            writeSchedule(STATUS[0])
+async def runScript(client):
+    if(not schedule_old_exists):
+        await writeSchedule(client)
+    if(await client.loop.create_task(getSchedule())):
+        if(not await compare(client)):
+            await writeSchedule(client)
             return True
         else:
             return False
     else:
-        writeSchedule(STATUS[0])
         return False
