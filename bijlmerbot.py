@@ -69,7 +69,7 @@ async def deleteMessages(message, length, args, purgeValue):
 async def checkSchedule():
     await client.wait_until_ready()
     while not client.is_closed:
-        if(await client.loop.create_task(schedule_notification_discord.runScript(client))):
+        if(await schedule_notification_discord.runScript()):
             date = time.strftime("%d/%m/%Y %H:%M")
             roosterEmbed.set_footer(text=date)
             await client.send_message(discord.Object(id="359766050461450240"), "@everyone ", embed=roosterEmbed)

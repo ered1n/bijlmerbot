@@ -13,11 +13,12 @@ schedule_old_exists = Path(dir + "schedule_old.txt").is_file()
 filename = dir  + "schedule_old.txt"
 removeDates = "\n8.00"
 
-def getSchedule():
+async def getSchedule():
     try:
-        request = yield from aiohttp.request("get", url)
-        src = yield from request.text()
-        return src.split(removeDates)[1]
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                source = await response.text()
+                return source.split(removeDates)[1]
     except IndexError:
         return False
         
@@ -26,25 +27,25 @@ def computeMD5hash(string):
     m.update(string.encode('utf-8'))
     return m.hexdigest()
 
-async def writeSchedule(client):
+async def writeSchedule():
     with open(filename, "w") as data:
-        data.write(computeMD5hash(await client.loop.create_task(getSchedule())))
+        data.write(computeMD5hash(await getSchedule()))
     
-async def compare(client):
+async def compare():
     with open(filename, "r") as data:
         md5_old = data.read()
-    md5_new = computeMD5hash(await client.loop.create_task(getSchedule()))
+    md5_new = computeMD5hash(await getSchedule())
     if(md5_old == md5_new):
         return True
     else:
         return False
 
-async def runScript(client):
+async def runScript():
     if(not schedule_old_exists):
-        await writeSchedule(client)
-    if(await client.loop.create_task(getSchedule())):
-        if(not await compare(client)):
-            await writeSchedule(client)
+        await writeSchedule()
+    if(await getSchedule()):
+        if(not await compare()):
+            await writeSchedule()
             return True
         else:
             return False
