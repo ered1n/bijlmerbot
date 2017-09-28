@@ -30,10 +30,12 @@ class Moderation:
         try:
             return await commands.RoleConverter().convert(ctx, roleOrUser)
         except commands.BadArgument:
+            await ctx.send("Error, invalid user or role")
             pass
             
     #purge
     @commands.command()
+    @commands.check(permission.checkPermission)
     async def purge(self, ctx, amount: int, member: discord.Member=None):
         messages = []
         await ctx.channel.purge(limit=1)
@@ -59,23 +61,40 @@ class Moderation:
     
     @perm.command()
     async def add(self, ctx, cmd, roleOrUser):
-        if(ctx.author.id == ctx.guild.owner.id):
+        if ctx.author.id == ctx.guild.owner.id or permission.checkPermission(ctx):
             if await self.checkCmd(ctx, cmd):
                 roleOrUser = await self.checkRoleOrUser(ctx, roleOrUser)
-                rule = {"command": cmd, "server": ctx.guild.id, "role/user": roleOrUser.id}
-                with open(self.bot.permissionJSON, "r+") as data:
-                    perms = json.load(data)
-                    perms.append(rule)
-                    data.seek(0)
-                    json.dump(perms, data)
-                await ctx.send("Permission added :ok_hand: :100:")
+                if not permission.findPermission(permission.getPermissions(self.bot.permissionJSON), cmd, ctx.guild.id, roleOrUser):
+                    rule = {"command": cmd, "server": ctx.guild.id, "role/user": roleOrUser.id}
+                    with open(self.bot.permissionJSON, "r+") as data:
+                        perms = json.load(data)
+                        perms.append(rule)
+                        data.seek(0)
+                        json.dump(perms, data)
+                    await ctx.send("Permission added :ok_hand: :100:")
+                else:
+                    await ctx.send("Error, this rule already exists :smirk:")
         else:
-            await ctx.send("Error, you don't have permission to use the perm command")
+            await ctx.send("Error, you don't have permission to use the perm command :joy:")
         
     @perm.command()
     async def remove(self, ctx, cmd, roleOrUser):
-        if await self.checkCmd(ctx, cmd):
-            print("test")
+        if ctx.author.id == ctx.guild.owner.id or permission.checkPermission(ctx):
+            if await self.checkCmd(ctx, cmd):
+                roleOrUser = await self.checkRoleOrUser(ctx, roleOrUser)
+                rule = permission.findPermission(permission.getPermissions(self.bot.permissionJSON), cmd, ctx.guild.id, roleOrUser)
+                if(rule):
+                    with open(self.bot.permissionJSON, "r+") as data:
+                        perms = json.load(data)
+                        perms.pop(perms.index(rule))
+                        data.seek(0)
+                        json.dump(perms, data)
+                        data.truncate()
+                    await ctx.send("Permission removed :worried:")
+                else:
+                    await ctx.send("Error, rule doesn't exist :rage:")
+        else:
+            await ctx.send("Error, you don't have permission to use the perm command :joy:")
             
 def setup(bot):
     bot.add_cog(Moderation(bot))

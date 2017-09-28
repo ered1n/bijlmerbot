@@ -9,8 +9,8 @@ dir = os.path.dirname(os.path.realpath(__file__)) + "/"
 
 week = str(date.today().isocalendar()[1])
 url = "https://rooster.talnet.nl/zuidoost/" + week + "/c/c00044.htm"
-schedule_old_exists = Path(dir + "schedule_old.txt").is_file()
-filename = dir  + "schedule_old.txt"
+old_exists = Path(dir + "old.txt").is_file()
+filename = dir  + "old.txt"
 removeDates = "\n8.00"
 
 async def getSchedule():
@@ -35,16 +35,16 @@ async def compare():
     with open(filename, "r") as data:
         md5_old = data.read()
     md5_new = computeMD5hash(await getSchedule())
-    if(md5_old == md5_new):
+    if md5_old == md5_new:
         return True
     else:
         return False
 
 async def runScript():
-    if(not schedule_old_exists):
+    if not old_exists:
         await writeSchedule()
-    if(await getSchedule()):
-        if(not await compare()):
+    if await getSchedule():
+        if not await compare():
             await writeSchedule()
             return True
         else:
