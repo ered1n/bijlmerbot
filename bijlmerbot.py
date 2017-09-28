@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from schedule import schedule
+from pathlib import Path
 import asyncio
 import time
 import config
@@ -9,12 +10,11 @@ import os
 
 bot = commands.Bot(command_prefix=config.prefix, help_attrs=dict(hidden=True))
 bot.permissionJSON = os.path.dirname(os.path.realpath(__file__)) + "/permissions.json"
+permissions_exist = Path(os.path.dirname(os.path.realpath(__file__)) + "/permissions.json").is_file()
 
-cogs = ["cogs.basic",
-            "cogs.moderation"]
+cogs = ["cogs.basic", "cogs.moderation"]
             
-bot.permCommands = ["perm",
-                                   "purge"]
+bot.permCommands = ["perm", "purge"]
 
 @bot.event
 async def on_ready():
@@ -31,6 +31,10 @@ async def on_ready():
         except Exception as e:
             print(f'Failed to load cog {cog}.', file=sys.stderr)
             traceback.print_exc()
+    
+    if not permissions_exist:
+        with open(bot.permissionJSON, "w") as data:
+            data.write("[]")
             
 @bot.event
 async def on_command_error(ctx, error):
@@ -48,7 +52,7 @@ async def checkSchedule():
             roosterEmbed = discord.Embed(title="Roosterwijziging!", description="Het rooster is gewijzigd, klik [hier](" + schedule.url + ") voor de wijzigingen", colour=0xff0000)
             date = time.strftime("%d/%m/%Y %H:%M")
             roosterEmbed.set_footer(text=date)
-            await bot.get_channel(362316010340089859).send("@everyone ", embed=roosterEmbed)
+            await bot.get_channel(359766050461450240).send("@everyone ", embed=roosterEmbed)
         await asyncio.sleep(60)
 
 bot.loop.create_task(checkSchedule())
