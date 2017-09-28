@@ -3,3 +3,4 @@ __pycache__/
 .idea/
 permissions.json
 old.txt
+config.py
