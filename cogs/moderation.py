@@ -54,12 +54,12 @@ class Moderation:
         await self.purgeMessage(ctx, len(messages))
     
     #permission
-    @commands.group()
+    @commands.group(usage="<add/remove> <cmd> <roleOrUser>")
     async def perm(self, ctx):
         if ctx.invoked_subcommand is None:
             raise commands.BadArgument
     
-    @perm.command()
+    @perm.command(hidden=True)
     async def add(self, ctx, cmd, roleOrUser):
         if ctx.author.id == ctx.guild.owner.id or permission.checkPermission(ctx):
             if await self.checkCmd(ctx, cmd):
@@ -77,7 +77,7 @@ class Moderation:
         else:
             await ctx.send("Error, you don't have permission to use the perm command :joy:")
         
-    @perm.command()
+    @perm.command(hidden=True)
     async def remove(self, ctx, cmd, roleOrUser):
         if ctx.author.id == ctx.guild.owner.id or permission.checkPermission(ctx):
             if await self.checkCmd(ctx, cmd):
