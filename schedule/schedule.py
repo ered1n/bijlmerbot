@@ -53,9 +53,9 @@ async def compare():
         return False
 
 async def runScript():
-    if not old_exists:
-        await writeSchedule()
     if await getSchedule():
+        if not old_exists:
+            await writeSchedule()
         if not await compare():
             await writeSchedule()
             return True
