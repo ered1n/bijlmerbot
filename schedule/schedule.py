@@ -8,6 +8,7 @@ import hashlib
 dir = os.path.dirname(os.path.realpath(__file__)) + "/"
 
 nav = "https://rooster.talnet.nl/zuidoost/frames/navbar.htm"
+url = ""
 old_exists = Path(dir + "old.txt").is_file()
 filename = dir  + "old.txt"
 removeDates = "\n8.00"
@@ -26,9 +27,11 @@ async def getClassNum():
 async def getSchedule():
     week = getWeek()
     classNum = await getClassNum()
+    global url
+    url = f"https://rooster.talnet.nl/zuidoost/{week}/c/c000{classNum}.htm"
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(f"https://rooster.talnet.nl/zuidoost/{week}/c/c000{classNum}.htm") as response:
+            async with session.get(url) as response:
                 source = await response.text()
                 return source.split(removeDates)[1]
     except IndexError:
