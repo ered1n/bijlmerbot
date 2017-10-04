@@ -20,15 +20,16 @@ def getWeek():
 
 async def getClassNum():
     async with aiohttp.ClientSession() as session:
-            async with session.get(nav) as response:
-                source = await response.text()
-                return eval(source.split(navTop)[1].split(navBot)[0].replace(";", "")).index("OITAOO5A") + 1
+        async with session.get(nav) as response:
+            source = await response.text()
+            return eval(source.split(navTop)[1].split(navBot)[0].replace(";", "")).index("OITAOO5A") + 1
           
 async def getSchedule():
     week = getWeek()
     classNum = await getClassNum()
+    z = "0" * (5 - len(str(classNum)))
     global url
-    url = f"https://rooster.talnet.nl/zuidoost/{week}/c/c000{classNum}.htm"
+    url = f"https://rooster.talnet.nl/zuidoost/{week}/c/c{z}{classNum}.htm"
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
