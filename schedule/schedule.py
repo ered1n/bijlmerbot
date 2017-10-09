@@ -56,25 +56,26 @@ def computeMD5hash(string):
     m.update(string.encode('utf-8'))
     return m.hexdigest()
 
-async def writeSchedule():
+async def writeSchedule(schedule):
     with open(filename, "w") as data:
-        data.write(computeMD5hash(await getSchedule()))
+        data.write(computeMD5hash(schedule))
     
-async def compare():
+async def compare(schedule):
     with open(filename, "r") as data:
         md5_old = data.read()
-    md5_new = computeMD5hash(await getSchedule())
+    md5_new = computeMD5hash(schedule)
     if md5_old == md5_new:
         return True
     else:
         return False
 
 async def runScript():
-    if await getSchedule():
+    schedule = await getSchedule()
+    if schedule:
         if not old_exists:
-            await writeSchedule()
-        if not await compare():
-            await writeSchedule()
+            await writeSchedule(schedule)
+        if not await compare(schedule):
+            await writeSchedule(schedule)
             return True
         else:
             return False
