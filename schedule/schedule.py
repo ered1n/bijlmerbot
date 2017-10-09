@@ -19,24 +19,37 @@ def getWeek():
     return date.today().isocalendar()[1]
 
 async def getClassNum():
-    async with aiohttp.ClientSession() as session:
-        async with session.get(nav) as response:
-            source = await response.text()
-            return eval(source.split(navTop)[1].split(navBot)[0].replace(";", "")).index("OITAOO5A") + 1
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(nav) as response:
+                source = await response.text()
+                return eval(source.split(navTop)[1].split(navBot)[0].replace(";", "")).index("OITAOO5A") + 1
+    except ConnectionResetError:
+        return False
+    except aiohttp.ClientOSError:
+        return False
           
 async def getSchedule():
     week = getWeek()
     classNum = await getClassNum()
-    z = "0" * (5 - len(str(classNum)))
-    global url
-    url = f"https://rooster.talnet.nl/zuidoost/{week}/c/c{z}{classNum}.htm"
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                source = await response.text()
-                return source.split(removeDates)[1]
-    except IndexError:
+    if not classNum:
         return False
+    else:
+        z = "0" * (5 - len(str(classNum)))
+        global url
+        url = f"https://rooster.talnet.nl/zuidoost/{week}/c/c{z}{classNum}.htm"
+        try:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url) as response:
+                        source = await response.text()
+                        return source.split(removeDates)[1]
+            except ConnectionResetError:
+                return False
+            except aiohttp.ClientOSError:
+                return False
+        except IndexError:
+            return False
         
 def computeMD5hash(string):
     m = hashlib.md5()
