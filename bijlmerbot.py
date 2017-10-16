@@ -1,18 +1,21 @@
 import discord
-from discord.ext import commands
-from schedule import schedule
-from pathlib import Path
 import asyncio
 import time
 import config
 import sys, traceback
 import os
 
+from discord.ext import commands
+from schedule import schedule
+from pathlib import Path
+from methods.db import DB
+
 bot = commands.Bot(command_prefix=config.prefix, help_attrs=dict(hidden=True))
 bot.permissionJSON = os.path.dirname(os.path.realpath(__file__)) + "/permissions.json"
+bot.db = DB(config.db_host, config.db_user, config.db_pass, 'bijlmerbot', bot.loop)
 permissions_exist = Path(os.path.dirname(os.path.realpath(__file__)) + "/permissions.json").is_file()
 
-cogs = ["cogs.basic", "cogs.moderation"]
+cogs = ["cogs.basic", "cogs.moderation", "cogs.levels"]
             
 bot.permCommands = ["perm", "purge"]
 
@@ -24,7 +27,9 @@ async def on_ready():
     print("-------------------")
     
     await bot.change_presence(game=discord.Game(name=config.prefix + "help", url="https://www.twitch.tv/bijlmerbot", type=1))
-    
+
+    await bot.db.connect()
+
     for cog in cogs:
         try:
             bot.load_extension(cog)
@@ -35,7 +40,7 @@ async def on_ready():
     if not permissions_exist:
         with open(bot.permissionJSON, "w") as data:
             data.write("[]")
-            
+
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.BadArgument):
