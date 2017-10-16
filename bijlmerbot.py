@@ -55,5 +55,5 @@ async def checkSchedule():
             await bot.get_channel(359766050461450240).send("@everyone ", embed=roosterEmbed)
         await asyncio.sleep(60)
 
-bot.loop.create_task(checkSchedule())
+# bot.loop.create_task(checkSchedule())
 bot.run(config.key)
