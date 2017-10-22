@@ -17,7 +17,7 @@ permissions_exist = Path(os.path.dirname(os.path.realpath(__file__)) + "/permiss
 
 cogs = ["cogs.basic", "cogs.moderation", "cogs.levels"]
             
-bot.permCommands = ["perm", "purge"]
+bot.permCommands = ["perm", "purge", "channel"]
 
 @bot.event
 async def on_ready():
