@@ -58,9 +58,9 @@ class Basic:
 
     @rank.command()
     async def leaderboard(self, ctx):
-        data = await ctx.bot.db.fetch(f"SELECT user_id, xp FROM level WHERE server_id={ctx.guild.id} ORDER BY xp DESC")
+        data = await ctx.bot.db.fetch(f"SELECT user_id, xp FROM level WHERE server_id={ctx.guild.id} ORDER BY xp DESC LIMIT 50")
         output = "```"
-        for x in range(0, 50):
+        for x in range(len(data)):
             try:
                 output += "\n#" + str(x + 1) + " | " + str(await commands.MemberConverter().convert(ctx, str(data[x][0]))) + " | lvl: " + str(levels.get_level_from_xp(data[x][1])) + " | xp: " + str(data[x][1])
             except commands.BadArgument:
