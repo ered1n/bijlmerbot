@@ -24,7 +24,7 @@ class Levels:
     async def on_message(self, msg):
         user_exists = await self.bot.db.fetchone(f"SELECT * FROM level WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
         if not user_exists:
-            if msg.author.id != 362313784045469716 and msg.author.id != 327170106318651392:
+            if not msg.author.bot:
                 current_time = time.strftime("%d-%m-%Y %H:%M")
                 await self.bot.db.execute(f"INSERT INTO level (user_id, server_id, xp, cooldown) VALUES ({msg.author.id}, {msg.guild.id}, 0, '{current_time}')")
         else:
@@ -40,7 +40,7 @@ class Levels:
                 mention = await self.bot.db.fetchone(f"SELECT mention FROM level WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
                 if mention[0] == 1:
                     rank_channel_id = await self.bot.db.fetchone(f"SELECT rank_channel_id FROM server WHERE server_id={msg.guild.id}")
-                    if not rank_channel_id:
+                    if not rank_channel_id[0]:
                         await msg.channel.send("Congratulations <@" + str(msg.author.id) + ">, you have advanced to level " + str(lvl_after))
                     else:
                         await self.bot.get_channel(rank_channel_id[0]).send("Congratulations <@" + str(msg.author.id) + ">, you have advanced to level " + str(lvl_after))

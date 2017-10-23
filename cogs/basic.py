@@ -41,13 +41,19 @@ class Basic:
 
     @rank.command()
     @commands.check(permission.checkPermission)
-    async def channel(self, ctx, channel: int):
+    async def channel(self, ctx, channel: int=None):
         server_exists = await self.bot.db.fetchone(f"SELECT * FROM server WHERE server_id={ctx.guild.id}")
         if not server_exists:
-            await self.bot.db.execute(f"INSERT INTO server (server_id, rank_channel_id) VALUES ({ctx.guild.id}, {channel})")
+            if channel:
+                await self.bot.db.execute(f"INSERT INTO server (server_id, rank_channel_id) VALUES ({ctx.guild.id}, {channel})")
+            else:
+                await self.bot.db.execute(f"INSERT INTO server (server_id, rank_channel_id) VALUES ({ctx.guild.id}, NULL)")
             await ctx.send("Level up notification channel set :thumbsup:")
         else:
-            await self.bot.db.execute(f"UPDATE server SET rank_channel_id={channel} WHERE server_id={ctx.guild.id}")
+            if channel:
+                await self.bot.db.execute(f"UPDATE server SET rank_channel_id={channel} WHERE server_id={ctx.guild.id}")
+            else:
+                await self.bot.db.execute(f"UPDATE server SET rank_channel_id=NULL WHERE server_id={ctx.guild.id}")
             await ctx.send("Level up notification channel set :thumbsup:")
         
 def setup(bot):
