@@ -1,0 +1,7 @@
+key = "your bot token"
+prefix = "$"
+owners = [123, 321, 333]
+db_host = "localhost"
+db_user = "root"
+db_pass = ""
+db_name = "your database name"

@@ -41,14 +41,14 @@ async def on_ready():
         with open(bot.permissionJSON, "w") as data:
             data.write("[]")
 
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.BadArgument):
-        await ctx.send("Incorrect syntax, use ```" + config.prefix + "help <command>```")
-    elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("Missing required argument(s) use ```" + config.prefix + "help <command>```")
-    elif isinstance(error, commands.CheckFailure):
-        await ctx.send("Error, you don't have permission to use the " + ctx.command.name + " command :rage:")
+# @bot.event
+# async def on_command_error(ctx, error):
+#     if isinstance(error, commands.BadArgument):
+#         await ctx.send("Incorrect syntax, use ```" + config.prefix + "help <command>```")
+#     elif isinstance(error, commands.MissingRequiredArgument):
+#         await ctx.send("Missing required argument(s) use ```" + config.prefix + "help <command>```")
+#     elif isinstance(error, commands.CheckFailure):
+#         await ctx.send("Error, you don't have permission to use the " + ctx.command.name + " command :rage:")
         
 async def checkSchedule():
     await bot.wait_until_ready()
