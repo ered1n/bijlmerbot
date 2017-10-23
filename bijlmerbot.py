@@ -12,7 +12,7 @@ from methods.db import DB
 
 bot = commands.Bot(command_prefix=config.prefix, help_attrs=dict(hidden=True))
 bot.permissionJSON = os.path.dirname(os.path.realpath(__file__)) + "/permissions.json"
-bot.db = DB(config.db_host, config.db_user, config.db_pass, 'bijlmerbot', bot.loop)
+bot.db = DB(config.db_host, config.db_user, config.db_pass, config.db_name, bot.loop)
 permissions_exist = Path(os.path.dirname(os.path.realpath(__file__)) + "/permissions.json").is_file()
 
 cogs = ["cogs.basic", "cogs.moderation", "cogs.levels"]
