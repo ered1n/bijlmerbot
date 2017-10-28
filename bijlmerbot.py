@@ -15,13 +15,15 @@ bot.permissionJSON = os.path.dirname(os.path.realpath(__file__)) + "/permissions
 bot.db = DB(config.db_host, config.db_user, config.db_pass, config.db_name, bot.loop)
 permissions_exist = Path(os.path.dirname(os.path.realpath(__file__)) + "/permissions.json").is_file()
 
-cogs = ["cogs.basic", "cogs.moderation", "cogs.levels"]
+cogs = ["cogs.basic", "cogs.moderation", "cogs.levels", "cogs.fun"]
             
 bot.permCommands = ["perm", "purge", "channel"]
+
 
 @bot.event
 async def on_ready():
     print("Bot online")
+    print("Discord.py version: " + discord.__version__)
     print(bot.user.name)
     print(bot.user.id)
     print("-------------------")
@@ -41,6 +43,7 @@ async def on_ready():
         with open(bot.permissionJSON, "w") as data:
             data.write("[]")
 
+
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.BadArgument):
@@ -49,7 +52,8 @@ async def on_command_error(ctx, error):
         await ctx.send("Missing required argument(s) use ```" + config.prefix + "help <command>```")
     elif isinstance(error, commands.CheckFailure):
         await ctx.send("Error, you don't have permission to use the " + ctx.command.name + " command :rage:")
-        
+
+
 async def checkSchedule():
     await bot.wait_until_ready()
     while not bot.is_closed():

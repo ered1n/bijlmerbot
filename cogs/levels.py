@@ -17,9 +17,14 @@ class Levels:
         xp = await self.bot.db.fetchone(f"SELECT xp FROM level WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
         return xp[0]
 
+    async def get_credits(self, msg):
+        credit = await self.bot.db.fetchone(f"SELECT credits FROM level WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
+        return credit[0]
+
     async def set_xp(self, msg, current_time):
         xp = await self.get_xp(msg)
-        await self.bot.db.execute(f"UPDATE level SET xp={xp + randint(15, 25)}, cooldown='{current_time}' WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
+        credit = await self.get_credits(msg)
+        await self.bot.db.execute(f"UPDATE level SET xp={xp + randint(15, 25)}, cooldown='{current_time}', credits={credit + randint(10, 50)} WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
 
     async def on_message(self, msg):
         user_exists = await self.bot.db.fetchone(f"SELECT * FROM level WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
