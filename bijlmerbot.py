@@ -17,7 +17,7 @@ permissions_exist = Path(os.path.dirname(os.path.realpath(__file__)) + "/permiss
 
 cogs = ["cogs.basic", "cogs.moderation", "cogs.levels"]
             
-bot.permCommands = ["perm", "purge", "channel", "ban", "kick", "warn"]
+bot.permCommands = ["perm", "purge", "channel", "ban", "kick", "warn", "say"]
 
 
 @bot.event
@@ -28,7 +28,7 @@ async def on_ready():
     print(bot.user.id)
     print("-------------------")
     
-    await bot.change_presence(game=discord.Game(name=config.prefix + "help", url="https://www.twitch.tv/bijlmerbot", type=1))
+    await bot.change_presence(game=discord.Game(name="you sleep", type=3))
 
     await bot.db.connect()
 
