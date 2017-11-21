@@ -15,9 +15,9 @@ bot.permissionJSON = os.path.dirname(os.path.realpath(__file__)) + "/permissions
 bot.db = DB(config.db_host, config.db_user, config.db_pass, config.db_name, bot.loop)
 permissions_exist = Path(os.path.dirname(os.path.realpath(__file__)) + "/permissions.json").is_file()
 
-cogs = ["cogs.basic", "cogs.moderation", "cogs.levels", "cogs.fun"]
+cogs = ["cogs.basic", "cogs.moderation", "cogs.levels"]
             
-bot.permCommands = ["perm", "purge", "channel"]
+bot.permCommands = ["perm", "purge", "channel", "ban", "kick", "warn"]
 
 
 @bot.event
@@ -52,6 +52,8 @@ async def on_command_error(ctx, error):
         await ctx.send("Missing required argument(s) use ```" + config.prefix + "help <command>```")
     elif isinstance(error, commands.CheckFailure):
         await ctx.send("Error, you don't have permission to use the " + ctx.command.name + " command :rage:")
+    elif isinstance(error, commands.CommandInvokeError):
+        await ctx.send("Error, I can't " + ctx.command.name + " this user because I don't have permission or the user has a higher role :cry:")
 
 
 async def checkSchedule():

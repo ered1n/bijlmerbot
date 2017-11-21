@@ -24,6 +24,8 @@ class Fun:
                 if slot[0] == slot[1] and slot[0] == slot[2]:
                     prize = round((bet * slot[0][1]) + bet)
                     message = "you won " + str(prize) + " credits!"
+                    credits_spent = await self.bot.db.fetchone(f"SELECT credits_spent FROM server WHERE server_id={ctx.guild.id}")
+                    await self.bot.db.execute(f"UPDATE server SET credits_spent={credits_spent[0] + bet - prize} WHERE server_id={ctx.guild.id}")
                 else:
                     server_exists = await self.bot.db.fetchone(f"SELECT * FROM server WHERE server_id={ctx.guild.id}")
                     if not server_exists:

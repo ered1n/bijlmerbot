@@ -12,7 +12,7 @@ class Basic:
 
     def __init__(self, bot):
         self.bot = bot
-    
+
     #ping
     @commands.command()
     async def ping(self, ctx):
@@ -22,6 +22,13 @@ class Basic:
     @commands.command()
     async def uptime(self, ctx):
         await ctx.send("The uptime is: ```" + str(datetime.datetime.utcnow() - self.startTime)[:-7] + "```")
+
+    #say
+    @commands.command()
+    @commands.check(permission.checkPermission)
+    async def say(self, ctx, *,content: str):
+        await ctx.message.delete()
+        await ctx.send(content)
 
     #levels
     @commands.group()

@@ -1,11 +1,8 @@
-import discord
-from discord.ext import commands
-from methods import permission
 import json
 
 def getPermissions(permissionJSON):
     with open(permissionJSON, "r") as data:
-            return json.load(data)
+        return json.load(data)
             
 def findPermission(permissions, cmd, server, roleOrUser):
     for rule in permissions:
@@ -14,6 +11,9 @@ def findPermission(permissions, cmd, server, roleOrUser):
     return False
     
 def checkPermission(ctx):
+    if ctx.command.name == "add" or ctx.command.name == "remove":
+        ctx.command.name = "perm"
+
     for rule in getPermissions(ctx.bot.permissionJSON):
         roles = []
         for role in ctx.author.roles:
@@ -23,4 +23,7 @@ def checkPermission(ctx):
                 return True
             elif(rule["role/user"] in roles):
                 return True
+    if (ctx.author.id == ctx.guild.owner.id):
+        return True
+
     return False

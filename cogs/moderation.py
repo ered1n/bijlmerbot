@@ -64,7 +64,27 @@ class Moderation:
                     break
         await ctx.channel.delete_messages(messages)
         await self.purgeMessage(ctx, len(messages))
-    
+
+    # ban
+    @commands.command()
+    @commands.check(permission.checkPermission)
+    async def ban(self, ctx, user: discord.Member, *, reason: str):
+        await user.send("You have been banned from " + ctx.guild.name + " because of the following reason: '" + reason + "'")
+        await user.ban(reason=reason)
+
+    # kick
+    @commands.command()
+    @commands.check(permission.checkPermission)
+    async def kick(self, ctx, user: discord.Member, *, reason: str):
+        await user.send("You have been kicked from " + ctx.guild.name + " because of the following reason: '" + reason + "'")
+        await user.kick(reason=reason)
+
+    # warn
+    @commands.command()
+    @commands.check(permission.checkPermission)
+    async def warn(self, ctx, user: discord.Member, *, reason: str):
+        await user.send("You have been warned on " + ctx.guild.name + " because of the following reason: '" + reason + "'")
+
     #permission
     @commands.group(usage="<add/remove> <cmd> <roleOrUser>")
     async def perm(self, ctx):
