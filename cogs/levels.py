@@ -11,38 +11,33 @@ class Levels:
         self.bot = bot
 
     async def get_cooldown(self, msg):
-        return await self.bot.db.fetchone(f"SELECT cooldown FROM level WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
+        return await self.bot.db.fetchone(f"SELECT cooldown FROM users WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
 
     async def get_xp(self, msg):
-        xp = await self.bot.db.fetchone(f"SELECT xp FROM level WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
+        xp = await self.bot.db.fetchone(f"SELECT xp FROM users WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
         return xp[0]
-
-    async def get_credits(self, msg):
-        credit = await self.bot.db.fetchone(f"SELECT credits FROM level WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
-        return credit[0]
 
     async def set_xp(self, msg, current_time):
         xp = await self.get_xp(msg)
-        credit = await self.get_credits(msg)
-        await self.bot.db.execute(f"UPDATE level SET xp={xp + randint(15, 25)}, cooldown='{current_time}', credits={credit + randint(10, 50)} WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
+        await self.bot.db.execute(f"UPDATE users SET xp={xp + randint(15, 25)}, cooldown='{current_time}' WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
 
     async def on_message(self, msg):
-        user_exists = await self.bot.db.fetchone(f"SELECT * FROM level WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
+        user_exists = await self.bot.db.fetchone(f"SELECT * FROM users WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
         if not user_exists:
             if not msg.author.bot:
                 current_time = time.strftime("%d-%m-%Y %H:%M")
-                await self.bot.db.execute(f"INSERT INTO level (user_id, server_id, xp, cooldown) VALUES ({msg.author.id}, {msg.guild.id}, 0, '{current_time}')")
+                await self.bot.db.execute(f"INSERT INTO users (user_id, server_id, xp, cooldown) VALUES ({msg.author.id}, {msg.guild.id}, 0, '{current_time}')")
         else:
             lvl_before = levels.get_level_from_xp(await self.get_xp(msg))
-            cooldown = await self.bot.db.fetchone(f"SELECT cooldown FROM level WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
+            cooldown = await self.bot.db.fetchone(f"SELECT cooldown FROM users WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
             current_time = time.strftime("%d-%m-%Y %H:%M")
             if cooldown[0] != current_time:
                 await self.set_xp(msg, current_time)
             else:
-                await self.bot.db.execute(f"UPDATE level SET cooldown='{current_time}' WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
+                await self.bot.db.execute(f"UPDATE users SET cooldown='{current_time}' WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
             lvl_after = levels.get_level_from_xp(await self.get_xp(msg))
             if(lvl_before != lvl_after):
-                mention = await self.bot.db.fetchone(f"SELECT mention FROM level WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
+                mention = await self.bot.db.fetchone(f"SELECT mention FROM users WHERE user_id={msg.author.id} AND server_id={msg.guild.id}")
                 if mention[0] == 1:
                     rank_channel_id = await self.bot.db.fetchone(f"SELECT rank_channel_id FROM server WHERE server_id={msg.guild.id}")
                     if not rank_channel_id[0]:

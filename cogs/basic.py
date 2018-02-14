@@ -34,17 +34,17 @@ class Basic:
     @commands.group()
     async def rank(self, ctx):
         if ctx.message.content == "$rank":
-            xp = await self.bot.db.fetchone(f"SELECT xp FROM level WHERE user_id={ctx.author.id} AND server_id={ctx.guild.id}")
+            xp = await self.bot.db.fetchone(f"SELECT xp FROM users WHERE user_id={ctx.author.id} AND server_id={ctx.guild.id}")
             await ctx.send("Your level is " + str(levels.get_level_from_xp(xp[0])) + " and your total xp is " + str(xp[0]))
 
     @rank.command()
     async def mention(self, ctx):
-        mention = await self.bot.db.fetchone(f"SELECT mention FROM level WHERE user_id={ctx.author.id} AND server_id={ctx.guild.id}")
+        mention = await self.bot.db.fetchone(f"SELECT mention FROM users WHERE user_id={ctx.author.id} AND server_id={ctx.guild.id}")
         if mention[0] == 0:
-            await self.bot.db.execute(f"UPDATE level SET mention=1 WHERE user_id={ctx.author.id} AND server_id={ctx.guild.id}")
+            await self.bot.db.execute(f"UPDATE users SET mention=1 WHERE user_id={ctx.author.id} AND server_id={ctx.guild.id}")
             await ctx.send("Level up mentions enabled", delete_after=10)
         elif mention[0] == 1:
-            await self.bot.db.execute(f"UPDATE level SET mention=0 WHERE user_id={ctx.author.id} AND server_id={ctx.guild.id}")
+            await self.bot.db.execute(f"UPDATE users SET mention=0 WHERE user_id={ctx.author.id} AND server_id={ctx.guild.id}")
             await ctx.send("Level up mentions disabled", delete_after=10)
 
     @rank.command()
@@ -66,7 +66,7 @@ class Basic:
 
     @rank.command()
     async def leaderboard(self, ctx, page: int=1):
-        data = await ctx.bot.db.fetch(f"SELECT user_id, xp FROM level WHERE server_id={ctx.guild.id} ORDER BY xp DESC")
+        data = await ctx.bot.db.fetch(f"SELECT user_id, xp FROM users WHERE server_id={ctx.guild.id} ORDER BY xp DESC")
         amount_per_page = 10
         page = page - 1
         output = "```"
