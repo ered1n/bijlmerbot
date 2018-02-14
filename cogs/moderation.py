@@ -20,13 +20,13 @@ class Moderation:
         purgeEmbed = discord.Embed(title="Messages deleted", description="Deleted " + str(amount) + " message(s)", colour=0x00ff00)
         date = time.strftime("%d/%m/%Y %H:%M")
         purgeEmbed.set_footer(text=date)
-        await ctx.send(embed=purgeEmbed)
+        await ctx.send(embed=purgeEmbed, delete_after=10)
         
     async def checkCmd(self, ctx, cmd):
         if(cmd in self.bot.permCommands):
             return True
         else:
-            await ctx.send("Error, command doesn't require permission or doesn't exist")
+            await ctx.send("Error, command doesn't require permission or doesn't exist", delete_after=10)
             return False
             
     async def checkRoleOrUser(self, ctx, roleOrUser):
@@ -37,7 +37,7 @@ class Moderation:
         try:
             return await commands.RoleConverter().convert(ctx, roleOrUser)
         except commands.BadArgument:
-            await ctx.send("Error, invalid user or role")
+            await ctx.send("Error, invalid user or role", delete_after=10)
             pass
 
     def cleanup_code(self, content):
@@ -103,11 +103,11 @@ class Moderation:
                         perms.append(rule)
                         data.seek(0)
                         json.dump(perms, data)
-                    await ctx.send("Permission added :ok_hand: :100:")
+                    await ctx.send("Permission added :ok_hand: :100:", delete_after=10)
                 else:
-                    await ctx.send("Error, this rule already exists :smirk:")
+                    await ctx.send("Error, this rule already exists :smirk:", delete_after=10)
         else:
-            await ctx.send("Error, you don't have permission to use the perm command :joy:")
+            await ctx.send("Error, you don't have permission to use the perm command :joy:", delete_after=10)
         
     @perm.command(hidden=True)
     async def remove(self, ctx, cmd, roleOrUser):
@@ -122,9 +122,9 @@ class Moderation:
                         data.seek(0)
                         json.dump(perms, data)
                         data.truncate()
-                    await ctx.send("Permission removed :worried:")
+                    await ctx.send("Permission removed :worried:", delete_after=10)
                 else:
-                    await ctx.send("Error, rule doesn't exist :rage:")
+                    await ctx.send("Error, rule doesn't exist :rage:", delete_after=10)
         else:
             await ctx.send("Error, you don't have permission to use the perm command :joy:")
 
@@ -175,7 +175,7 @@ class Moderation:
                     self._last_result = ret
                     await ctx.send(f'```py\n{value}{ret}\n```')
         else:
-            await ctx.send("Error, you don't have permission to use the eval command :rage:")
+            await ctx.send("Error, you don't have permission to use the eval command :rage:", delete_after=10)
 
 def setup(bot):
     bot.add_cog(Moderation(bot))

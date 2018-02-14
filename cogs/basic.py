@@ -42,10 +42,10 @@ class Basic:
         mention = await self.bot.db.fetchone(f"SELECT mention FROM level WHERE user_id={ctx.author.id} AND server_id={ctx.guild.id}")
         if mention[0] == 0:
             await self.bot.db.execute(f"UPDATE level SET mention=1 WHERE user_id={ctx.author.id} AND server_id={ctx.guild.id}")
-            await ctx.send("Level up mentions enabled")
+            await ctx.send("Level up mentions enabled", delete_after=10)
         elif mention[0] == 1:
             await self.bot.db.execute(f"UPDATE level SET mention=0 WHERE user_id={ctx.author.id} AND server_id={ctx.guild.id}")
-            await ctx.send("Level up mentions disabled")
+            await ctx.send("Level up mentions disabled", delete_after=10)
 
     @rank.command()
     @commands.check(permission.checkPermission)
@@ -56,13 +56,13 @@ class Basic:
                 await self.bot.db.execute(f"INSERT INTO server (server_id, rank_channel_id) VALUES ({ctx.guild.id}, {channel})")
             else:
                 await self.bot.db.execute(f"INSERT INTO server (server_id, rank_channel_id) VALUES ({ctx.guild.id}, NULL)")
-            await ctx.send("Level up notification channel set :thumbsup:")
+            await ctx.send("Level up notification channel set :thumbsup:", delete_after=10)
         else:
             if channel:
                 await self.bot.db.execute(f"UPDATE server SET rank_channel_id={channel} WHERE server_id={ctx.guild.id}")
             else:
                 await self.bot.db.execute(f"UPDATE server SET rank_channel_id=NULL WHERE server_id={ctx.guild.id}")
-            await ctx.send("Level up notification channel set :thumbsup:")
+            await ctx.send("Level up notification channel set :thumbsup:", delete_after=10)
 
     @rank.command()
     async def leaderboard(self, ctx, page: int=1):
@@ -71,7 +71,7 @@ class Basic:
         page = page - 1
         output = "```"
         if page < 0 or page * amount_per_page >= len(data):
-            await ctx.send("Error, page doesn't exist :disappointed_relieved:")
+            await ctx.send("Error, page doesn't exist :disappointed_relieved:", delete_after=10)
         else:
             data_page = []
             counter = 1
