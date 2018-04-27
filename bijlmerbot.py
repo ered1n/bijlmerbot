@@ -27,8 +27,8 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print("-------------------")
-    
-    await bot.change_presence(game=discord.Game(name="you sleep", type=3))
+
+    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(name='you sleep', type=discord.ActivityType.watching))
 
     await bot.db.connect()
 
