@@ -16,7 +16,7 @@ bot.db = DB(config.db_host, config.db_user, config.db_pass, config.db_name, bot.
 permissions_exist = Path(os.path.dirname(os.path.realpath(__file__)) + "/permissions.json").is_file()
 
 cogs = ["cogs.basic", "cogs.moderation", "cogs.levels"]
-            
+
 bot.permCommands = ["perm", "purge", "channel", "ban", "kick", "warn", "say"]
 
 
@@ -36,9 +36,9 @@ async def on_ready():
         try:
             bot.load_extension(cog)
         except Exception as e:
-            print(f'Failed to load cog {cog}.', file=sys.stderr)
+            print('Failed to load cog {}.'.format(cog), file=sys.stderr)
             traceback.print_exc()
-    
+
     if not permissions_exist:
         with open(bot.permissionJSON, "w") as data:
             data.write("[]")

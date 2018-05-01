@@ -28,7 +28,7 @@ async def getClassNum():
         return False
     except aiohttp.ClientOSError:
         return False
-          
+
 async def getSchedule():
     week = getWeek()
     classNum = await getClassNum()
@@ -37,7 +37,7 @@ async def getSchedule():
     else:
         z = "0" * (5 - len(str(classNum)))
         global url
-        url = f"https://rooster.talnet.nl/zuidoost/{week}/c/c{z}{classNum}.htm"
+        url = "https://rooster.talnet.nl/zuidoost/{}/c/c{}{}.htm".format(week, z, classNum)
         try:
             try:
                 async with aiohttp.ClientSession() as session:
@@ -50,7 +50,7 @@ async def getSchedule():
                 return False
         except IndexError:
             return False
-        
+
 def computeMD5hash(string):
     m = hashlib.md5()
     m.update(string.encode('utf-8'))
@@ -59,7 +59,7 @@ def computeMD5hash(string):
 async def writeSchedule(schedule):
     with open(filename, "w") as data:
         data.write(computeMD5hash(schedule))
-    
+
 async def compare(schedule):
     with open(filename, "r") as data:
         md5_old = data.read()

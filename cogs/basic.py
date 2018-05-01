@@ -17,7 +17,7 @@ class Basic:
     @commands.command()
     async def ping(self, ctx):
         await ctx.send("Pong! :ping_pong:```" + str(round(self.bot.latency * 1000)) + "ms```")
-    
+
     #uptime
     @commands.command()
     async def uptime(self, ctx):
@@ -34,39 +34,39 @@ class Basic:
     @commands.group()
     async def rank(self, ctx):
         if ctx.message.content == "$rank":
-            xp = await self.bot.db.fetchone(f"SELECT xp FROM users WHERE user_id={ctx.author.id} AND server_id={ctx.guild.id}")
+            xp = await self.bot.db.fetchone("SELECT xp FROM users WHERE user_id={} AND server_id={}".format(ctx.author.id, ctx.guild.id))
             await ctx.send("Your level is " + str(levels.get_level_from_xp(xp[0])) + " and your total xp is " + str(xp[0]))
 
     @rank.command()
     async def mention(self, ctx):
-        mention = await self.bot.db.fetchone(f"SELECT mention FROM users WHERE user_id={ctx.author.id} AND server_id={ctx.guild.id}")
+        mention = await self.bot.db.fetchone("SELECT mention FROM users WHERE user_id={} AND server_id={}".format(ctx.author.id, ctx.guild.id))
         if mention[0] == 0:
-            await self.bot.db.execute(f"UPDATE users SET mention=1 WHERE user_id={ctx.author.id} AND server_id={ctx.guild.id}")
+            await self.bot.db.execute("UPDATE users SET mention=1 WHERE user_id={} AND server_id={}".format(ctx.author.id, ctx.guild.id))
             await ctx.send("Level up mentions enabled", delete_after=10)
         elif mention[0] == 1:
-            await self.bot.db.execute(f"UPDATE users SET mention=0 WHERE user_id={ctx.author.id} AND server_id={ctx.guild.id}")
+            await self.bot.db.execute("UPDATE users SET mention=0 WHERE user_id={} AND server_id={}".format(ctx.author.id, ctx.guild.id))
             await ctx.send("Level up mentions disabled", delete_after=10)
 
     @rank.command()
     @commands.check(permission.checkPermission)
     async def channel(self, ctx, channel: int=None):
-        server_exists = await self.bot.db.fetchone(f"SELECT * FROM server WHERE server_id={ctx.guild.id}")
+        server_exists = await self.bot.db.fetchone("SELECT * FROM server WHERE server_id={}".format(ctx.guild.id))
         if not server_exists:
             if channel:
-                await self.bot.db.execute(f"INSERT INTO server (server_id, rank_channel_id) VALUES ({ctx.guild.id}, {channel})")
+                await self.bot.db.execute("INSERT INTO server (server_id, rank_channel_id) VALUES ({}, {})".format(ctx.guild.id, channel))
             else:
-                await self.bot.db.execute(f"INSERT INTO server (server_id, rank_channel_id) VALUES ({ctx.guild.id}, NULL)")
+                await self.bot.db.execute("INSERT INTO server (server_id, rank_channel_id) VALUES ({}, NULL)".format(ctx.guild.id))
             await ctx.send("Level up notification channel set :thumbsup:", delete_after=10)
         else:
             if channel:
-                await self.bot.db.execute(f"UPDATE server SET rank_channel_id={channel} WHERE server_id={ctx.guild.id}")
+                await self.bot.db.execute("UPDATE server SET rank_channel_id={} WHERE server_id={}".format(channel, ctx.guild.id))
             else:
-                await self.bot.db.execute(f"UPDATE server SET rank_channel_id=NULL WHERE server_id={ctx.guild.id}")
+                await self.bot.db.execute("UPDATE server SET rank_channel_id=NULL WHERE server_id={}".format(ctx.guild.id))
             await ctx.send("Level up notification channel set :thumbsup:", delete_after=10)
 
     @rank.command()
     async def leaderboard(self, ctx, page: int=1):
-        data = await ctx.bot.db.fetch(f"SELECT user_id, xp FROM users WHERE server_id={ctx.guild.id} ORDER BY xp DESC")
+        data = await ctx.bot.db.fetch("SELECT user_id, xp FROM users WHERE server_id={} ORDER BY xp DESC".format(ctx.guild.id))
         amount_per_page = 10
         page = page - 1
         output = "```"
@@ -87,7 +87,10 @@ class Basic:
                         data_page.append(["#" + str(page * amount_per_page + counter), str(data[x][0]), str(levels.get_level_from_xp(data[x][1])), str(data[x][1])])
                         counter += 1
             for x in range(len(data_page)):
-                output += "\n" + f"{data_page[x][0]:<{max(len(x[0]) for x in data_page)}}" + " | " + f"{data_page[x][1]:<{max(len(x[1]) for x in data_page)}}" + " | lvl: " + f"{data_page[x][2]:<{max(len(x[2]) for x in data_page)}}" + " | xp: " + data_page[x][3]
+                output += "\n"
+                output += "{m:<{w}}".format(m=data_page[x][0], w=max(len(x[0]) for x in data_page)) + " | "
+                output += "{m:<{w}}".format(m=data_page[x][1], w=max(len(x[1]) for x in data_page)) + " | lvl: "
+                output += "{m:<{w}}".format(m=data_page[x][2], w=max(len(x[2]) for x in data_page)) + " | xp: " + data_page[x][3]
             await ctx.send(output + "\n\npage " + str(page + 1) + "/" + (str(math.ceil(len(data) / amount_per_page))) + "```")
 
     @commands.command()
