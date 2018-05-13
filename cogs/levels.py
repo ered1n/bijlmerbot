@@ -26,7 +26,7 @@ class Levels:
         if not user_exists:
             if not msg.author.bot:
                 current_time = time.strftime("%d-%m-%Y %H:%M")
-                await self.bot.db.execute("INSERT INTO users (user_id, server_id, xp, cooldown) VALUES ({}, {}, 0, '{current_time}')".format(msg.author.id, msg.guild.id))
+                await self.bot.db.execute("INSERT INTO users (user_id, server_id, xp, cooldown) VALUES ({}, {}, 0, '{}')".format(msg.author.id, msg.guild.id, current_time))
         else:
             lvl_before = levels.get_level_from_xp(await self.get_xp(msg))
             cooldown = await self.bot.db.fetchone("SELECT cooldown FROM users WHERE user_id={} AND server_id={}".format(msg.author.id, msg.guild.id))
